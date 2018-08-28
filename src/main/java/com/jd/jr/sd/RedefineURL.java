@@ -6,9 +6,13 @@
  */
 package com.jd.jr.sd;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -39,9 +43,40 @@ public class RedefineURL {
 					for (Map<String, String> s : mockList) {
 						String url = s.get("urlOrInterFacade");
 						String mockContent = s.get("outParam");
-						builder.append("if(url.startsWith(\"" + url + "\")) {");
-						builder.append("return new com.jd.jr.sd.httpclient.MockHttpURLConnection(this,\"" + mockContent
-								+ "\");}");
+						String responseCode = s.get("responseCode");
+						String responseMessage = s.get("responseMessage");
+						String contentType = s.get("contentType");
+						String headers = s.get("headers");
+
+
+						builder.append("if(url.toLowerCase().startsWith(\"" + url.toLowerCase() + "\")) {");
+						builder.append("String content=" + mockContent + ";");
+						builder.append(
+								"com.jd.jr.sd.MockHttpURLConnection mockConnection = new com.jd.jr.sd.MockHttpURLConnection(this,content);");
+						if (responseCode != null) {
+							builder.append("mockConnection.setResponseCode(\"" + responseCode + "\");");
+						}
+
+						if (responseMessage != null) {
+							builder.append("mockConnection.setResponseMessage(\"" + responseMessage + "\");");
+						}
+
+						if (contentType != null) {
+							builder.append("mockConnection.setContentType(\"" + contentType + "\");");
+						}
+						Object headers_ = JSONArray.parse(headers);
+						JSONArray array = (JSONArray) headers_;
+						int headerLength = array.size();
+						for (int k = 0; k < headerLength; k++) {
+							JSONObject header = array.getJSONObject(k);
+							Iterator<String> it = header.keySet().iterator();
+							while (it.hasNext()) {
+								String key = it.next();
+								String value = header.getString(key);
+								builder.append("mockConnection.addHeader(\"" + key + "\",\"" + value + "\");");
+							}
+						}
+						builder.append("return mockConnection;}");
 					}
 					logger.info("mockContent" + builder.toString());
 					method.insertBefore(builder.toString());

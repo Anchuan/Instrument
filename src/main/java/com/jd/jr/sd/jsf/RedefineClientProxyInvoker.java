@@ -49,7 +49,10 @@ public class RedefineClientProxyInvoker {
 						String mockContent = s.get("outParam");
 						builder.append(
 								"if($0.consumerConfig.refer() instanceof " + interfaceName + ") {");
-						builder.append("return new com.jd.jr.sd.jsf.MockResponseMessage($1,\"" + mockContent + "\");}");
+						builder.append("String content=" + mockContent + ";");
+						builder.append(
+								"com.jd.jr.sd.jsf.MockResponseMessage mockResponse = new com.jd.jr.sd.jsf.MockResponseMessage($1,content);");
+						builder.append("return mockResponse;}");
 					}
 					method.insertBefore(builder.toString());
 				}

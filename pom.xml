@@ -3,11 +3,42 @@
   <groupId>com.jd.jr.sd</groupId>
   <artifactId>agent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+  	 <httpcore.version>4.4.1</httpcore.version>
+     <httpclient.version>4.5</httpclient.version>
+     <slf4j-version>1.7.5</slf4j-version>
+     <jsf.version>1.6.0</jsf.version>
+  </properties>
   <dependencies>  
-    <dependency>
+   <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${httpcore.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>jsf</artifactId>
+			<version>${jsf.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	<dependency>
 	    <groupId>org.javassist</groupId>
 	    <artifactId>javassist</artifactId>
 	    <version>3.22.0-GA</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.alibaba</groupId>
+	    <artifactId>fastjson</artifactId>
+	    <version>1.2.49</version>
 	</dependency> 
   </dependencies>  
    <build>  
@@ -21,20 +52,44 @@
             <manifestEntries>  
              <Can-Redefine-Classes>true</Can-Redefine-Classes>  
               <Premain-Class>com.jd.jr.sd.SDAgent</Premain-Class>  
-              <Boot-Class-Path>/Users/zjx/.m2/repository/org/javassist/javassist/3.22.0-GA/javassist-3.22.0-GA.jar:/Users/zjx/workspace/InstrumentURL/target/agent-0.0.1-SNAPSHOT.jar</Boot-Class-Path>  
+              <Boot-Class-Path>/Users/zjx/.m2/repository/org/javassist/javassist/3.22.0-GA/javassist-3.22.0-GA.jar:/Users/zjx/workspace/sd/Instrument/target/agent-0.0.1-SNAPSHOT.jar</Boot-Class-Path>  
             </manifestEntries>  
-            
-            
           </archive>  
         </configuration>  
       </plugin>  
       <plugin>  
        <artifactId>maven-compiler-plugin </artifactId >  
-              <configuration>  
-                  <source>1.6</source >  
-                  <target>1.6</target>  
-              </configuration>  
-     </plugin>  
+	      <configuration>  
+	          <source>1.6</source >  
+	          <target>1.6</target>  
+	      </configuration>  
+     </plugin> 
+     <plugin>  
+	  <artifactId>maven-assembly-plugin</artifactId>  
+	  <configuration>  
+	    <descriptorRefs>  
+	      <descriptorRef>jar-with-dependencies</descriptorRef>  
+	    </descriptorRefs>  
+	  <archive>  
+	    <manifestEntries>  
+          <Can-Redefine-Classes>true</Can-Redefine-Classes>  
+           <Premain-Class>com.jd.jr.sd.SDAgent</Premain-Class>  
+           <Boot-Class-Path>agent-system-0.0.1-SNAPSHOT.jar</Boot-Class-Path>
+           <!-- <Boot-Class-Path>/Users/zjx/workspace/InstrumentSystem/target/agent-system-0.0.1-SNAPSHOT.jar</Boot-Class-Path>
+              -->
+         </manifestEntries>   
+	  </archive>  
+	  </configuration>  
+	  <executions>  
+	    <execution>  
+	      <id>make-assembly</id>  
+	      <phase>package</phase>  
+	      <goals>  
+	        <goal>single</goal>  
+	      </goals>  
+	   </execution>  
+	  </executions>  
+	</plugin>   
     </plugins>  
   </build>  
 </project>
