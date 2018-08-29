@@ -6,12 +6,15 @@
  */
 package com.jd.jr.sd.jsf;
 
+import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.jsf.gd.msg.BaseMessage;
+import com.jd.jsf.gd.msg.Invocation;
+import com.jd.jsf.gd.msg.RequestMessage;
 import com.jd.jsf.gd.msg.ResponseMessage;
-
-import io.netty.buffer.ByteBuf;
 
 /**
  * 
@@ -23,20 +26,41 @@ import io.netty.buffer.ByteBuf;
  */
 public class MockResponseMessage extends ResponseMessage {
 
-	private String content;
+	private Object obj;
 	private Logger logger = Logger.getLogger(MockResponseMessage.class.getName());
 
-	public MockResponseMessage(BaseMessage message, String outParam) {
-		logger.info(message.toString());
-		ByteBuf msg = message.getMsg();
-		logger.info(msg == null ? null : new String(msg.array()));
-		ByteBuf msgBody = message.getMsgBody();
-		logger.info(msgBody == null ? null : new String(msgBody.array()));
-		this.content = outParam;
+	private boolean isMock;
+
+	public boolean isMock() {
+		return isMock;
+	}
+
+	public MockResponseMessage(BaseMessage message, String outParam, String methodStr) {
+		RequestMessage requestMessage = (RequestMessage) message;
+		Invocation body = requestMessage.getInvocationBody();
+		String className = body.getClazzName();
+		String methodName = body.getMethodName();
+		String methodStr_ = className + "." + methodName;
+		if (methodStr_.equals(methodStr)) {
+			logger.info("jsf mock:" + methodStr_);
+			Class cla = null;
+			try {
+				cla = Class.forName(className);
+				Method method = cla.getMethod(methodName, body.getArgClasses());
+				Class returnClass = method.getReturnType();
+				Object obj = JSON.parseObject(outParam, returnClass);
+				this.obj = obj;
+				isMock = true;
+			} catch (Exception e) {
+				logger.log(Level.WARNING, "处理数据异常", e);
+			}
+		}
+
+
 	}
 	@Override
 	public Object getResponse() {
-		return content;
+		return obj;
 	}
 
 	@Override

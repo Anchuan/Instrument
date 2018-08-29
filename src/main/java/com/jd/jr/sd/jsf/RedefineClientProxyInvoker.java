@@ -40,20 +40,17 @@ public class RedefineClientProxyInvoker {
 						.equals("com.jd.jsf.gd.client.ClientProxyInvoker".replaceAll("\\.", "/") + "/invoke")) {
 					logger.info("Transforming " + completeMethodName);
 					StringBuilder builder = new StringBuilder();
-					builder.append("System.out.println($0.consumerConfig.refer());");
-					// builder.append("System.out.println($0.consumerConfig.client);");
-					// builder.append("System.out.println($0.consumerConfig.subscribe());");
 					logger.info("Transforming param " + mockList);
 					for (Map<String, String> s : mockList) {
 						String interfaceName = s.get("urlOrInterFacade");
 						String mockContent = s.get("outParam");
-						builder.append(
-								"if($0.consumerConfig.refer() instanceof " + interfaceName + ") {");
 						builder.append("String content=" + mockContent + ";");
+						builder.append("String methodStr=\"" + interfaceName + "\";");
 						builder.append(
-								"com.jd.jr.sd.jsf.MockResponseMessage mockResponse = new com.jd.jr.sd.jsf.MockResponseMessage($1,content);");
-						builder.append("return mockResponse;}");
+								"com.jd.jr.sd.jsf.MockResponseMessage mockResponse = new com.jd.jr.sd.jsf.MockResponseMessage($1,content,methodStr);");
+						builder.append("if(mockResponse.isMock()){return mockResponse;}");
 					}
+					logger.info(builder.toString());
 					method.insertBefore(builder.toString());
 				}
 			}
