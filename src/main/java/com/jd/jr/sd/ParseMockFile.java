@@ -110,13 +110,15 @@ public class ParseMockFile {
 									} else {
 										outParam = obj.toString();
 									}
-
-									outParam = outParam.replaceAll("\"", "\\\\\"");
-									outParam = "\"" + outParam + "\"";
+									if (outParam != null) {
+										// outParam = outParam.replaceAll("\"", "\\\\\"");
+										// outParam = "\"" + outParam + "\"";
+										mock.put("outParam", outParam);
+									}
 
 									mock.put("urlOrInterFacade", urlOrInterFacade);
 									mock.put("inParam", inParam);
-									mock.put("outParam", outParam);
+
 									protocolMockList.add(mock);
 								} catch (Exception e) {
 									logger.log(Level.SEVERE, "本条数据解析异常,配置无效" + str, e);

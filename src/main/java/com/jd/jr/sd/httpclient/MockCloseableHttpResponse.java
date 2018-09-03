@@ -8,6 +8,7 @@ package com.jd.jr.sd.httpclient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,12 +26,18 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicListHeaderIterator;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * 
@@ -46,17 +53,81 @@ public class MockCloseableHttpResponse implements CloseableHttpResponse {
 	private StatusLine statusLine = new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	
+	private boolean isMock;
+
+	public boolean isMock() {
+		return isMock;
+	}
+
 	private Map<String, Header[]> headerMap = new HashMap<String, Header[]>();
 
-	public MockCloseableHttpResponse(String response) {
-		this.content = response;
-		int length = -1;
-		if (response != null) {
-			length = content.length();
-		}
-		Header contentLengthHeader = new BasicHeader(HTTP.CONTENT_LEN, length + "");
-		headerMap.put(HTTP.CONTENT_LEN, new Header[] { contentLengthHeader });
+	public MockCloseableHttpResponse(String jsonArrayConfigStr, Object request) {
+		if(request instanceof HttpRequestWrapper) {
+			org.apache.http.client.methods.HttpRequestWrapper httpRequestWrapper = (org.apache.http.client.methods.HttpRequestWrapper) request;
+					List<HashMap> mockList = JSONArray.parseArray(jsonArrayConfigStr, HashMap.class);
+					org.apache.http.HttpRequest httpRequest = httpRequestWrapper.getOriginal();
+					String url = null;
+					try {
+						if (url == null && httpRequest instanceof HttpRequestBase) {
+							HttpRequestBase httpRequestBase = (HttpRequestBase) httpRequest;
+							URL url_ = httpRequestBase.getURI().toURL();
+							url = url_.getProtocol() + "://" + url_.getHost() + url_.getPath();
+							logger.info("request----url:" + url);
+						}
+						if (url == null && httpRequest instanceof HttpUriRequest) {
+							HttpUriRequest httpRequestBase = (HttpUriRequest) httpRequest;
+							URL url_ = httpRequestBase.getURI().toURL();
+							url = url_.getProtocol() + "://" + url_.getHost() + url_.getPath();
+							logger.info("request----url:" + url);
+						}
+					} catch (Exception e) {
+						logger.log(Level.WARNING, "处理URL异常", e);
+					}
+					if (url != null) {
+						for (Map<String, String> s : mockList) {
+							String url_ = s.get("urlOrInterFacade");
+							String mockContent = s.get("outParam");
+							String responseCode = s.get("responseCode");
+							String responseMessage = s.get("responseMessage");
+							String contentType = s.get("contentType");
+							String headers = s.get("headers");
+							if (url.equalsIgnoreCase(url_)) {
+						this.isMock = true;
+								this.content = mockContent;
+								int length = -1;
+								if (content != null) {
+									length = content.length();
+								}
+								Header contentLengthHeader = new BasicHeader(HTTP.CONTENT_LEN, length + "");
+								headerMap.put(HTTP.CONTENT_LEN, new Header[] { contentLengthHeader });
+								if (responseCode != null) {
+									if (responseMessage == null) {
+										responseMessage = "";
+									}
+									this.setResponseCode(responseCode, responseMessage);
+								}
 
+								if (contentType != null) {
+									this.setContentType(contentType);
+								}
+
+								Object headers_ = JSONArray.parse(headers);
+								JSONArray array = (JSONArray) headers_;
+								int headerLength = array.size();
+								for (int k = 0; k < headerLength; k++) {
+									JSONObject header = array.getJSONObject(k);
+									Iterator<String> it = header.keySet().iterator();
+									while (it.hasNext()) {
+										String key = it.next();
+										String value = header.getString(key);
+										this.addHeader(key, value);
+									}
+								}
+							}
+						}
+					}
+		}
+		
 	}
 
 	public void setResponseCode(String code, String message) {

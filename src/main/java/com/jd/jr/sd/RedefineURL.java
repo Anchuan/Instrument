@@ -43,13 +43,16 @@ public class RedefineURL {
 					for (Map<String, String> s : mockList) {
 						String url = s.get("urlOrInterFacade");
 						String mockContent = s.get("outParam");
+						if (mockContent != null) {
+							mockContent = "\"" + mockContent.replaceAll("\"", "\\\\\"") + "\"";
+						}
 						String responseCode = s.get("responseCode");
 						String responseMessage = s.get("responseMessage");
 						String contentType = s.get("contentType");
 						String headers = s.get("headers");
 
 
-						builder.append("if(url.toLowerCase().startsWith(\"" + url.toLowerCase() + "\")) {");
+						builder.append("if(url.toLowerCase().equalsIgnoreCase(\"" + url.toLowerCase() + "\")) {");
 						builder.append("String content=" + mockContent + ";");
 						builder.append(
 								"com.jd.jr.sd.MockHttpURLConnection mockConnection = new com.jd.jr.sd.MockHttpURLConnection(this,content);");
