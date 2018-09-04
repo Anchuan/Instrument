@@ -57,7 +57,7 @@ public class ParseMockFile {
 					if (str.startsWith("#")) {
 						logger.info("str:" + str + "是注释，忽略");
 					} else {
-						String[] parameterItems = str.split("\\t|\\s");
+						String[] parameterItems = str.split("\\t");
 						if (parameterItems.length != 4) {
 							logger.info("str:" + str + "格式不对 忽略");
 						} else {
@@ -108,6 +108,8 @@ public class ParseMockFile {
 											mock.put("responseMessage", responseMessage.replaceAll("\"", "\\\\\""));
 										}
 										outParam = mockContent.getString("outContent");
+									} else {
+										// outParam = outParam;
 									}
 									if (outParam != null) {
 										// outParam = outParam.replaceAll("\"", "\\\\\"");

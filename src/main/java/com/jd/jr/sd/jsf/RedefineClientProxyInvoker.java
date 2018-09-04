@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.jr.sd.RedefineURL;
 
 import javassist.CtClass;
@@ -39,17 +40,18 @@ public class RedefineClientProxyInvoker {
 				if (completeMethodName
 						.equals("com.jd.jsf.gd.client.ClientProxyInvoker".replaceAll("\\.", "/") + "/invoke")) {
 					logger.info("Transforming " + completeMethodName);
+					String jsonArrayConfigStr = JSON.toJSONString(mockList);
+					logger.info("jsonArrayConfigStr pre " + jsonArrayConfigStr);
+					jsonArrayConfigStr = "\""
+							+ jsonArrayConfigStr.replaceAll("\\\"", "\\\\\"").replaceAll("\\\\\\\\\"", "\\\\\\\\\\\\\"")
+							+ "\"";
+
 					StringBuilder builder = new StringBuilder();
 					logger.info("Transforming param " + mockList);
-					for (Map<String, String> s : mockList) {
-						String interfaceName = s.get("urlOrInterFacade");
-						String mockContent = s.get("outParam");
-						builder.append("String content=" + mockContent + ";");
-						builder.append("String methodStr=\"" + interfaceName + "\";");
-						builder.append(
-								"com.jd.jr.sd.jsf.MockResponseMessage mockResponse = new com.jd.jr.sd.jsf.MockResponseMessage($1,content,methodStr);");
-						builder.append("if(mockResponse.isMock()){return mockResponse;}");
-					}
+					builder.append(
+							"com.jd.jr.sd.jsf.MockResponseMessage mockResponse = new com.jd.jr.sd.jsf.MockResponseMessage($1,"
+									+ jsonArrayConfigStr + ");");
+					builder.append("if(mockResponse.isMock()){return mockResponse;}");
 					logger.info(builder.toString());
 					method.insertBefore(builder.toString());
 				}

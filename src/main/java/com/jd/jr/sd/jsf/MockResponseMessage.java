@@ -7,10 +7,14 @@
 package com.jd.jr.sd.jsf;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.jd.jsf.gd.msg.BaseMessage;
 import com.jd.jsf.gd.msg.Invocation;
 import com.jd.jsf.gd.msg.RequestMessage;
@@ -35,26 +39,35 @@ public class MockResponseMessage extends ResponseMessage {
 		return isMock;
 	}
 
-	public MockResponseMessage(BaseMessage message, String outParam, String methodStr) {
+	public MockResponseMessage(BaseMessage message, String jsonArrayConfigStr) {
+		List<HashMap> mockList = JSONArray.parseArray(jsonArrayConfigStr, HashMap.class);
+		
 		RequestMessage requestMessage = (RequestMessage) message;
 		Invocation body = requestMessage.getInvocationBody();
 		String className = body.getClazzName();
 		String methodName = body.getMethodName();
 		String methodStr_ = className + "." + methodName;
-		if (methodStr_.equals(methodStr)) {
-			logger.info("jsf mock:" + methodStr_);
-			Class cla = null;
-			try {
-				cla = Class.forName(className);
-				Method method = cla.getMethod(methodName, body.getArgClasses());
-				Class returnClass = method.getReturnType();
-				Object obj = JSON.parseObject(outParam, returnClass);
-				this.obj = obj;
-				isMock = true;
-			} catch (Exception e) {
-				logger.log(Level.WARNING, "处理数据异常", e);
+		for (Map<String, String> s : mockList) {
+			String interfaceName = s.get("urlOrInterFacade");
+			String mockContent = s.get("outParam");
+			if (interfaceName.equals(methodStr_)) {
+				logger.info("jsf mock:" + methodStr_);
+				Class cla = null;
+				try {
+					cla = Class.forName(className);
+					Method method = cla.getMethod(methodName, body.getArgClasses());
+					Class returnClass = method.getReturnType();
+					Object obj = JSON.parseObject(mockContent, returnClass);
+					this.obj = obj;
+					isMock = true;
+					break;
+				} catch (Exception e) {
+					logger.log(Level.WARNING, "处理数据异常", e);
+				}
 			}
 		}
+		
+		
 
 
 	}
