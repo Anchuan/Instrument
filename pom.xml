@@ -47,23 +47,14 @@
 	    <artifactId>fastjson</artifactId>
 	    <version>1.2.49</version>
 	</dependency> 
+	<dependency>
+	    <groupId>com.jd.jr.sd</groupId>
+	    <artifactId>agent-system</artifactId>
+	    <version>${project.version}</version>
+	</dependency> 
   </dependencies>  
    <build>  
-    <plugins>  
-      <plugin>  
-        <groupId>org.apache.maven.plugins</groupId>  
-        <artifactId>maven-jar-plugin</artifactId>  
-        <version>2.2</version>  
-        <configuration>  
-          <archive>  
-            <manifestEntries>  
-             <Can-Redefine-Classes>true</Can-Redefine-Classes>  
-              <Premain-Class>com.jd.jr.sd.SDAgent</Premain-Class>  
-              <Boot-Class-Path>/Users/zjx/.m2/repository/org/javassist/javassist/3.22.0-GA/javassist-3.22.0-GA.jar:/Users/zjx/workspace/sd/Instrument/target/agent-0.0.1-SNAPSHOT.jar</Boot-Class-Path>  
-            </manifestEntries>  
-          </archive>  
-        </configuration>  
-      </plugin>  
+    <plugins> 
       <plugin>  
        <artifactId>maven-compiler-plugin </artifactId >  
 	      <configuration>  
@@ -81,9 +72,7 @@
 	    <manifestEntries>  
           <Can-Redefine-Classes>true</Can-Redefine-Classes>  
            <Premain-Class>com.jd.jr.sd.SDAgent</Premain-Class>  
-           <Boot-Class-Path>agent-system-0.0.1-SNAPSHOT.jar</Boot-Class-Path>
-           <!-- <Boot-Class-Path>/Users/zjx/workspace/InstrumentSystem/target/agent-system-0.0.1-SNAPSHOT.jar</Boot-Class-Path>
-              -->
+           <Boot-Class-Path>agent-system-${project.version}.jar</Boot-Class-Path>
          </manifestEntries>   
 	  </archive>  
 	  </configuration>  
@@ -96,7 +85,25 @@
 	      </goals>  
 	   </execution>  
 	  </executions>  
-	</plugin>   
+	</plugin>  
+	
+     <plugin>  
+	  <artifactId>maven-deploy-plugin</artifactId>  
+	  <configuration>  
+	    <file>${project.build.dir}/${project.artifactId}-${project.version}-${packaging}-with-dependencies.jar</file>
+	  </configuration>
+	</plugin>  
     </plugins>  
   </build>  
+  
+  <distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://nexus.cbpmgt.com/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://nexus.cbpmgt.com/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

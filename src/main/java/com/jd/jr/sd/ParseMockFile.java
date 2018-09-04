@@ -74,16 +74,17 @@ public class ParseMockFile {
 									String urlOrInterFacade = parameterItems[1];
 									String inParam = parameterItems[2];
 									String outParam = parameterItems[3];
-									Object obj = JSONObject.parse(outParam);
-									logger.info("out param :" + obj.getClass());
-									if (!(obj instanceof JSONObject)) {
-										throw new RuntimeException("MOCK 的内容必须是JSON结构化数据,本条Mock无效:" + str);
-
-									}
-									JSONObject mockContent = (JSONObject)obj;
+									
 									// http协议进一步解析header、contentType
 									Map<String, String> mock = new HashMap<String, String>();
 									if ("http".equals(protocol)) {
+										Object obj = JSONObject.parse(outParam);
+										logger.info("out param :" + obj.getClass());
+										if (!(obj instanceof JSONObject)) {
+											throw new RuntimeException("MOCK 的内容必须是JSON结构化数据,本条Mock无效:" + str);
+
+										}
+										JSONObject mockContent = (JSONObject)obj;
 										String contentType = mockContent.getString("contentType");
 										if (contentType != null) {
 											mock.put("contentType", contentType.replaceAll("\"", "\\\\\""));
@@ -107,8 +108,6 @@ public class ParseMockFile {
 											mock.put("responseMessage", responseMessage.replaceAll("\"", "\\\\\""));
 										}
 										outParam = mockContent.getString("outContent");
-									} else {
-										outParam = obj.toString();
 									}
 									if (outParam != null) {
 										// outParam = outParam.replaceAll("\"", "\\\\\"");
