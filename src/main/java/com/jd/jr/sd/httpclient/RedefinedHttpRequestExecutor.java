@@ -46,9 +46,9 @@ public class RedefinedHttpRequestExecutor {
 					StringBuilder builder = new StringBuilder();
 					builder.append(
 							"com.jd.jr.sd.httpclient.MockCloseableHttpResponse mockResponse = new com.jd.jr.sd.httpclient.MockCloseableHttpResponse("
-									+ jsonArrayConfigStr + ",$1);");
+									+ jsonArrayConfigStr + ",$1,$2,$3);");
 					builder.append("if(mockResponse.isMock()){return mockResponse;}");
-					logger.info("mockContent" + builder.toString());
+					logger.info("mockContent:" + builder.toString());
 					method.insertBefore(builder.toString());
 				}
 			}

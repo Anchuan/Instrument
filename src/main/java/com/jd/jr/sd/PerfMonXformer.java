@@ -55,10 +55,10 @@ public class PerfMonXformer implements ClassFileTransformer {
 		CtClass cl = null;
 		try {
 			if (loader != null && !loaderList.contains(loader)) {
-				logger.info("class nnnnnnn:" + className + "," + loader);
+				logger.info("new loader:" + className + "," + loader);
 				synchronized (this) {
 					if (!loaderList.contains(loader)) {
-						logger.info("class nnnnnnn:" + className + "," + loader);
+						logger.info("new loader :" + className + "," + loader);
 						logger.info(loader + " load properties");
 						boolean parsed = ParseMockFile.parse(mockList, loader);
 						// 读到配置文件的时候。可能相关配置class 已经读取了。 需要走重定义类
