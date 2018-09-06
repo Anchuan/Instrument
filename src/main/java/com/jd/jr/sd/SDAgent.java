@@ -10,8 +10,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.logging.Logger;
 
-import javassist.util.HotSwapAgent;
-
 /**
  * 
   * @author liuifengyi
@@ -40,9 +38,8 @@ public class SDAgent {
 		logger.info("getAllLoadedClassesLength----" + _inst.getAllLoadedClasses().length);
 		logger.info(
 				"getInitiatedClassesLength----" + _inst.getInitiatedClasses(null).length);
-		HotSwapAgent.agentmain(agentArgs, _inst);
 		// HotSwapAgent.premain(agentArgs, _inst);
-		ClassFileTransformer trans = new PerfMonXformer(_inst);
+		ClassFileTransformer trans = new PerfMonXformer(agentArgs, _inst);
 		logger.info("Adding a PerfMonXformer instance to the JVM.");
 		_inst.addTransformer(trans);
 

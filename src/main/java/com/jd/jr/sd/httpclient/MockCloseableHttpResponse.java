@@ -130,16 +130,19 @@ public class MockCloseableHttpResponse implements CloseableHttpResponse {
 
 					Object headers_ = JSONArray.parse(headers);
 					JSONArray array = (JSONArray) headers_;
-					int headerLength = array.size();
-					for (int k = 0; k < headerLength; k++) {
-						JSONObject header = array.getJSONObject(k);
-						Iterator<String> it = header.keySet().iterator();
-						while (it.hasNext()) {
-							String key = it.next();
-							String value = header.getString(key);
-							this.addHeader(key, value);
+					if (array != null) {
+						int headerLength = array.size();
+						for (int k = 0; k < headerLength; k++) {
+							JSONObject header = array.getJSONObject(k);
+							Iterator<String> it = header.keySet().iterator();
+							while (it.hasNext()) {
+								String key = it.next();
+								String value = header.getString(key);
+								this.addHeader(key, value);
+							}
 						}
 					}
+
 				}
 			}
 		}
