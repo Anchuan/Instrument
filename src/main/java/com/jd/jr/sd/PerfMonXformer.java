@@ -113,7 +113,7 @@ public class PerfMonXformer implements ClassFileTransformer {
 			Method method = redefineURLClass.getDeclaredMethod("excuteRedefinedMock", String.class,
 					Instrumentation.class, Class.class, List.class);
 			logger.log(Level.INFO, "RedefineURL method " + method);
-			method.invoke(null, new Object[] { this.agentArgs, this._inst, cla, mockList.get("jsf") });
+			method.invoke(null, new Object[] { this.agentArgs, this._inst, cla, mockList.get("http") });
 			// RedefineURL.excute1(this.agentArgs, this._inst, cla, mockList.get("http"));
 			logger.log(Level.INFO, "HotSwapAgent className " + cla);
 		}
